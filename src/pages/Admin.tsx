@@ -12,7 +12,7 @@ import { supabase } from '../lib/supabase'
 const ADMIN_EMAIL = 'httmth@gmail.com'
 const ADMIN_PASSWORD = '1qaz1qazZ!'
 
-type Tab = 'products' | 'gallery' | 'videos' | 'testimonials' | 'faq' | 'messages' | 'settings'
+type Tab = 'products' | 'gallery' | 'videos' | 'testimonials' | 'faq' | 'messages' | 'site-images' | 'settings'
 
 interface Product {
   id: string
@@ -115,6 +115,7 @@ export default function Admin() {
     { id: 'testimonials', label: 'الشهادات', icon: Star },
     { id: 'faq', label: 'الأسئلة', icon: HelpCircle },
     { id: 'messages', label: 'الرسائل', icon: Mail },
+    { id: 'site-images', label: 'صور الموقع', icon: Image },
     { id: 'settings', label: 'الإعدادات', icon: Settings },
   ]
 
@@ -203,6 +204,7 @@ export default function Admin() {
           {activeTab === 'testimonials' && <TestimonialsTab />}
           {activeTab === 'faq' && <FAQTab />}
           {activeTab === 'messages' && <MessagesTab />}
+          {activeTab === 'site-images' && <SiteImagesTab />}
           {activeTab === 'settings' && <SettingsTab />}
         </div>
       </main>
@@ -842,6 +844,147 @@ function SettingsTab() {
         <button onClick={() => toast.success('تم حفظ الإعدادات')} className="flex items-center gap-2 px-6 py-3 bg-gold text-navy rounded-xl font-semibold hover:bg-gold-light transition-colors">
           <Save className="w-5 h-5" />حفظ التغييرات
         </button>
+      </div>
+    </div>
+  )
+}
+
+// ==================== SITE IMAGES TAB ====================
+function SiteImagesTab() {
+  const [images, setImages] = useState<{[key: string]: string}>({})
+  const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState<string | null>(null)
+  const fileInputRefs = {
+    hero_main: useRef<HTMLInputElement>(null),
+    hero_floating_1: useRef<HTMLInputElement>(null),
+    hero_floating_2: useRef<HTMLInputElement>(null),
+    about_main: useRef<HTMLInputElement>(null),
+    about_badge: useRef<HTMLInputElement>(null),
+  }
+
+  const imageSlots = [
+    { key: 'hero_main', label: 'صورة الهيرو الرئيسية', description: 'الصورة الكبيرة في أعلى الصفحة' },
+    { key: 'hero_floating_1', label: 'صورة عائمة 1', description: 'الصورة العائمة الأولى في الهيرو' },
+    { key: 'hero_floating_2', label: 'صورة عائمة 2', description: 'الصورة العائمة الثانية في الهيرو' },
+    { key: 'about_main', label: 'صورة قسم من نحن', description: 'الصورة الرئيسية في قسم من نحن' },
+  ]
+
+  useEffect(() => { fetchImages() }, [])
+
+  const fetchImages = async () => {
+    setLoading(true)
+    const { data, error } = await supabase.from('site_settings').select('*').in('key', imageSlots.map(s => s.key))
+    if (data) {
+      const imgs: {[key: string]: string} = {}
+      data.forEach(item => { imgs[item.key] = item.value })
+      setImages(imgs)
+    }
+    setLoading(false)
+  }
+
+  const handleUpload = async (key: string, file: File) => {
+    setUploading(key)
+    try {
+      // Delete old image if exists
+      if (images[key]) {
+        const oldPath = images[key].split('/site-images/')[1]
+        if (oldPath) await supabase.storage.from('site-images').remove([oldPath])
+      }
+
+      // Upload new image
+      const fileName = `${key}-${Date.now()}.${file.name.split('.').pop()}`
+      const { error: uploadError } = await supabase.storage.from('site-images').upload(fileName, file)
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage.from('site-images').getPublicUrl(fileName)
+
+      // Save to settings
+      const { error: upsertError } = await supabase.from('site_settings').upsert({ key, value: publicUrl, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+      if (upsertError) throw upsertError
+
+      toast.success('تم رفع الصورة بنجاح')
+      fetchImages()
+    } catch (error: any) {
+      toast.error(error.message || 'خطأ في الرفع')
+    }
+    setUploading(null)
+  }
+
+  const handleDelete = async (key: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذه الصورة؟')) return
+    try {
+      if (images[key]) {
+        const path = images[key].split('/site-images/')[1]
+        if (path) await supabase.storage.from('site-images').remove([path])
+      }
+      await supabase.from('site_settings').delete().eq('key', key)
+      toast.success('تم حذف الصورة')
+      fetchImages()
+    } catch (error: any) {
+      toast.error(error.message || 'خطأ في الحذف')
+    }
+  }
+
+  if (loading) {
+    return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-gold animate-spin" /></div>
+  }
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h3 className="text-lg font-semibold text-white">صور الموقع الثابتة</h3>
+          <p className="text-gray-400 text-sm mt-1">تحكم في الصور الرئيسية والخلفيات في الموقع</p>
+        </div>
+        <button onClick={fetchImages} className="p-2 bg-white/10 rounded-lg hover:bg-white/20"><RefreshCw className="w-5 h-5 text-gray-400" /></button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {imageSlots.map(slot => (
+          <div key={slot.key} className="bg-white/5 rounded-xl p-6">
+            <h4 className="text-white font-semibold mb-1">{slot.label}</h4>
+            <p className="text-gray-500 text-sm mb-4">{slot.description}</p>
+            
+            <div className="aspect-video bg-navy-light rounded-xl overflow-hidden mb-4 relative">
+              {images[slot.key] ? (
+                <>
+                  <img src={images[slot.key]} alt={slot.label} className="w-full h-full object-cover" />
+                  <button onClick={() => handleDelete(slot.key)} className="absolute top-2 right-2 p-2 bg-red-500/80 rounded-lg hover:bg-red-500">
+                    <Trash2 className="w-4 h-4 text-white" />
+                  </button>
+                </>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-500">
+                  <div className="text-center">
+                    <Image className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p>لا توجد صورة</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <input
+              ref={fileInputRefs[slot.key as keyof typeof fileInputRefs]}
+              type="file"
+              accept="image/*"
+              onChange={e => e.target.files?.[0] && handleUpload(slot.key, e.target.files[0])}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRefs[slot.key as keyof typeof fileInputRefs]?.current?.click()}
+              disabled={uploading === slot.key}
+              className="w-full py-3 bg-gold/20 text-gold rounded-xl font-semibold hover:bg-gold/30 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {uploading === slot.key ? <><Loader2 className="w-5 h-5 animate-spin" />جاري الرفع...</> : <><Upload className="w-5 h-5" />{images[slot.key] ? 'تغيير الصورة' : 'رفع صورة'}</>}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 p-4 bg-gold/10 rounded-xl border border-gold/30">
+        <p className="text-gold text-sm">
+          💡 <strong>ملاحظة:</strong> تأكد من إنشاء bucket باسم <code className="bg-black/30 px-2 py-1 rounded">site-images</code> في Supabase Storage وجعله Public.
+        </p>
       </div>
     </div>
   )

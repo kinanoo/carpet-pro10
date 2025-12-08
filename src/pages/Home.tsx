@@ -82,6 +82,12 @@ export default function Home() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials)
   const [faqs, setFaqs] = useState<FAQ[]>(defaultFaqs)
   const [videos, setVideos] = useState<VideoItem[]>([])
+  const [siteImages, setSiteImages] = useState<{[key: string]: string}>({
+    hero_main: '/carpet11.jpg',
+    hero_floating_1: '/carpet11.jpg',
+    hero_floating_2: '/carpet12.jpg',
+    about_main: '/carpet8.jpg'
+  })
 
   // Fetch data from Supabase
   useEffect(() => {
@@ -139,6 +145,25 @@ export default function Home() {
       
       if (videosData && videosData.length > 0) {
         setVideos(videosData)
+      }
+
+      // Fetch Site Images
+      const { data: siteImagesData } = await supabase
+        .from('site_settings')
+        .select('*')
+        .in('key', ['hero_main', 'hero_floating_1', 'hero_floating_2', 'about_main'])
+      
+      if (siteImagesData && siteImagesData.length > 0) {
+        const imgs: {[key: string]: string} = {
+          hero_main: '/carpet11.jpg',
+          hero_floating_1: '/carpet11.jpg',
+          hero_floating_2: '/carpet12.jpg',
+          about_main: '/carpet8.jpg'
+        }
+        siteImagesData.forEach(item => { 
+          if (item.value) imgs[item.key] = item.value 
+        })
+        setSiteImages(imgs)
       }
     }
 
@@ -295,8 +320,8 @@ export default function Home() {
         <div className="hero-pattern" />
         <div className="hero-glow hero-glow-1" />
         <div className="hero-glow hero-glow-2" />
-        <img src="/carpet11.jpg" className="floating-carpet w-32 h-32 object-cover rounded-2xl top-20 right-10" style={{ animationDelay: '0s' }} />
-        <img src="/carpet12.jpg" className="floating-carpet w-24 h-24 object-cover rounded-xl bottom-32 left-20" style={{ animationDelay: '2s' }} />
+        <img src={siteImages.hero_floating_1} className="floating-carpet w-32 h-32 object-cover rounded-2xl top-20 right-10" style={{ animationDelay: '0s' }} />
+        <img src={siteImages.hero_floating_2} className="floating-carpet w-24 h-24 object-cover rounded-xl bottom-32 left-20" style={{ animationDelay: '2s' }} />
 
         <div className="relative z-10 min-h-screen flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
@@ -340,7 +365,7 @@ export default function Home() {
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative hidden lg:block">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-primary/20 rounded-3xl blur-3xl" />
-                  <img src="/carpet11.jpg" alt="سجاد فاخر" className="relative rounded-3xl shadow-2xl w-full h-[500px] object-cover" />
+                  <img src={siteImages.hero_main} alt="سجاد فاخر" className="relative rounded-3xl shadow-2xl w-full h-[500px] object-cover" />
                   <div className="absolute -bottom-6 -right-6 glass-card p-4 flex items-center gap-3">
                     <div className="w-12 h-12 bg-gold rounded-full flex items-center justify-center">
                       <CheckCircle className="w-6 h-6 text-navy" />
@@ -368,7 +393,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative">
-              <img src="/carpet8.jpg" alt="معمل السجاد" className="rounded-3xl shadow-xl w-full h-[400px] object-cover" />
+              <img src={siteImages.about_main} alt="معمل السجاد" className="rounded-3xl shadow-xl w-full h-[400px] object-cover" />
               <div className="absolute -bottom-8 -left-8 bg-gold text-navy p-6 rounded-2xl shadow-xl">
                 <div className="text-4xl font-bold">+10</div>
                 <div className="font-semibold">سنوات من التميز</div>
