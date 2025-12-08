@@ -8,33 +8,54 @@ import {
 } from 'lucide-react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Pagination, Navigation, Keyboard } from 'swiper/modules'
+import { supabase } from '../lib/supabase'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
 
-// بيانات المنتجات مع صور متعددة
-const products = [
-  { id: 1, name: 'سجاد كلاسيكي فاخر', nameEn: 'Luxury Classic Carpet', images: ['/carpet11.jpg', '/carpet6.jpg', '/carpet7.jpg'], category: 'كلاسيك' },
-  { id: 2, name: 'سجاد عصري مودرن', nameEn: 'Modern Carpet', images: ['/carpet12.jpg', '/carpet9.jpg'], category: 'مودرن' },
-  { id: 3, name: 'سجاد أصيل راقي', nameEn: 'Authentic Premium', images: ['/carpet5.jpg', '/carpet8.jpg'], category: 'راقي' },
-  { id: 4, name: 'سجاد هندسي راقي', nameEn: 'Geometric Premium', images: ['/carpet3.jpg', '/carpet4.jpg', '/carpet2.jpg'], category: 'هندسي' },
-  { id: 5, name: 'سجاد ماربل فاخر', nameEn: 'Marble Luxury', images: ['/carpet9.jpg', '/carpet1.jpg'], category: 'ماربل' },
-  { id: 6, name: 'سجاد زخرفة شرقية', nameEn: 'Oriental Pattern', images: ['/carpet6.jpg', '/carpet11.jpg', '/carpet12.jpg'], category: 'شرقي' },
+interface Product {
+  id: string
+  name_ar: string
+  name_en: string
+  category: string
+  is_active: boolean
+  images?: { id: string; image_url: string; is_primary: boolean }[]
+}
+
+interface GalleryItem {
+  id: string
+  title_ar: string
+  image_url: string
+}
+
+interface Testimonial {
+  id: string
+  customer_name: string
+  customer_country: string
+  content_ar: string
+  rating: number
+}
+
+interface FAQ {
+  id: string
+  question_ar: string
+  answer_ar: string
+}
+
+// Default fallback data
+const defaultGallery = ['/carpet1.jpg', '/carpet2.jpg', '/carpet3.jpg', '/carpet4.jpg', '/carpet5.jpg', '/carpet6.jpg', '/carpet7.jpg', '/carpet8.jpg', '/carpet9.jpg', '/carpet10.jpg', '/carpet11.jpg', '/carpet12.jpg']
+
+const defaultTestimonials = [
+  { id: '1', customer_name: 'أحمد محمد', customer_country: 'السعودية', rating: 5, content_ar: 'جودة استثنائية وخدمة ممتازة. السجاد وصل بحالة ممتازة وبالضبط كما في الصور.' },
+  { id: '2', customer_name: 'فاطمة علي', customer_country: 'الإمارات', rating: 5, content_ar: 'أفضل سجاد اشتريته. الألوان رائعة والجودة عالية جداً.' },
+  { id: '3', customer_name: 'محمد خالد', customer_country: 'الكويت', rating: 5, content_ar: 'تعامل راقي وأسعار منافسة. أنصح بالتعامل معهم بشدة.' },
 ]
 
-const gallery = ['/carpet1.jpg', '/carpet2.jpg', '/carpet3.jpg', '/carpet4.jpg', '/carpet5.jpg', '/carpet6.jpg', '/carpet7.jpg', '/carpet8.jpg', '/carpet9.jpg', '/carpet10.jpg', '/carpet11.jpg', '/carpet12.jpg']
-
-const testimonials = [
-  { id: 1, name: 'أحمد محمد', country: 'السعودية', rating: 5, text: 'جودة استثنائية وخدمة ممتازة. السجاد وصل بحالة ممتازة وبالضبط كما في الصور.' },
-  { id: 2, name: 'فاطمة علي', country: 'الإمارات', rating: 5, text: 'أفضل سجاد اشتريته. الألوان رائعة والجودة عالية جداً.' },
-  { id: 3, name: 'محمد خالد', country: 'الكويت', rating: 5, text: 'تعامل راقي وأسعار منافسة. أنصح بالتعامل معهم بشدة.' },
-]
-
-const faqs = [
-  { q: 'ما هي مدة الشحن؟', a: 'الشحن يستغرق من 7-15 يوم عمل حسب الدولة.' },
-  { q: 'هل يوجد ضمان على المنتجات؟', a: 'نعم، جميع منتجاتنا مضمونة لمدة سنتين ضد عيوب الصناعة.' },
-  { q: 'ما هي طرق الدفع المتاحة؟', a: 'نقبل التحويل البنكي، الدفع عند الاستلام، وبطاقات الائتمان.' },
-  { q: 'هل يمكن طلب مقاسات خاصة؟', a: 'نعم، نوفر خدمة التصنيع حسب الطلب بالمقاسات التي تحتاجها.' },
+const defaultFaqs = [
+  { id: '1', question_ar: 'ما هي مدة الشحن؟', answer_ar: 'الشحن يستغرق من 7-15 يوم عمل حسب الدولة.' },
+  { id: '2', question_ar: 'هل يوجد ضمان على المنتجات؟', answer_ar: 'نعم، جميع منتجاتنا مضمونة لمدة سنتين ضد عيوب الصناعة.' },
+  { id: '3', question_ar: 'ما هي طرق الدفع المتاحة؟', answer_ar: 'نقبل التحويل البنكي، الدفع عند الاستلام، وبطاقات الائتمان.' },
+  { id: '4', question_ar: 'هل يمكن طلب مقاسات خاصة؟', answer_ar: 'نعم، نوفر خدمة التصنيع حسب الطلب بالمقاسات التي تحتاجها.' },
 ]
 
 export default function Home() {
@@ -42,12 +63,69 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
-  const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null)
+  const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' })
+  
+  // Data from Supabase
+  const [products, setProducts] = useState<Product[]>([])
+  const [gallery, setGallery] = useState<string[]>(defaultGallery)
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials)
+  const [faqs, setFaqs] = useState<FAQ[]>(defaultFaqs)
+
+  // Fetch data from Supabase
+  useEffect(() => {
+    const fetchData = async () => {
+      // Fetch products with images
+      const { data: productsData } = await supabase
+        .from('products')
+        .select('*, images:product_images(*)')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+      
+      if (productsData && productsData.length > 0) {
+        setProducts(productsData)
+      }
+
+      // Fetch gallery
+      const { data: galleryData } = await supabase
+        .from('gallery')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+      
+      if (galleryData && galleryData.length > 0) {
+        setGallery(galleryData.map(g => g.image_url))
+      }
+
+      // Fetch testimonials
+      const { data: testimonialsData } = await supabase
+        .from('testimonials')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+      
+      if (testimonialsData && testimonialsData.length > 0) {
+        setTestimonials(testimonialsData)
+      }
+
+      // Fetch FAQ
+      const { data: faqData } = await supabase
+        .from('faq')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+      
+      if (faqData && faqData.length > 0) {
+        setFaqs(faqData)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   useEffect(() => {
     const saved = localStorage.getItem('theme')
@@ -78,7 +156,7 @@ export default function Home() {
   }, [])
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!selectedProduct) return
+    if (!selectedProduct || !selectedProduct.images) return
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       const direction = e.key === 'ArrowRight' ? -1 : 1
       setSelectedImageIndex(prev => {
@@ -305,32 +383,40 @@ export default function Home() {
             <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">مجموعة متنوعة من أفخر أنواع السجاد بتصاميم عصرية وكلاسيكية</p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map((product, index) => (
-              <motion.div key={product.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="luxury-card group">
-                <div className="product-image-wrapper h-64 relative">
-                  <Swiper modules={[Autoplay, Pagination]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} autoplay={{ delay: 4000, disableOnInteraction: false }} className="h-full">
-                    {product.images.map((img, imgIndex) => (
-                      <SwiperSlide key={imgIndex}>
-                        <img src={img} alt={`${product.name} ${imgIndex + 1}`} className="w-full h-full object-cover" />
-                      </SwiperSlide>
-                    ))}
-                  </Swiper>
-                  {product.images.length > 1 && (
-                    <div className="absolute top-3 left-3 z-10 bg-black/60 text-white text-xs px-2 py-1 rounded-full">{product.images.length} صور</div>
-                  )}
-                  <div className="product-overlay flex items-end p-6">
-                    <button onClick={() => { setSelectedProduct(product); setSelectedImageIndex(0); }} className="btn-luxury w-full text-center">عرض التفاصيل</button>
+          {products.length === 0 ? (
+            <div className="text-center py-12 text-[var(--text-secondary)]">جاري تحميل المنتجات...</div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {products.map((product, index) => (
+                <motion.div key={product.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="luxury-card group">
+                  <div className="product-image-wrapper h-64 relative">
+                    {product.images && product.images.length > 0 ? (
+                      <Swiper modules={[Autoplay, Pagination]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} autoplay={{ delay: 4000, disableOnInteraction: false }} className="h-full">
+                        {product.images.map((img, imgIndex) => (
+                          <SwiperSlide key={imgIndex}>
+                            <img src={img.image_url} alt={`${product.name_ar} ${imgIndex + 1}`} className="w-full h-full object-cover" />
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                    ) : (
+                      <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-500">لا توجد صورة</div>
+                    )}
+                    {product.images && product.images.length > 1 && (
+                      <div className="absolute top-3 left-3 z-10 bg-black/60 text-white text-xs px-2 py-1 rounded-full">{product.images.length} صور</div>
+                    )}
+                    <div className="product-overlay flex items-end p-6">
+                      <button onClick={() => { setSelectedProduct(product); setSelectedImageIndex(0); }} className="btn-luxury w-full text-center">عرض التفاصيل</button>
+                    </div>
                   </div>
-                </div>
-                <div className="p-6">
-                  <span className="text-gold text-sm font-semibold">{product.category}</span>
-                  <h3 className="text-xl font-bold text-[var(--text-main)] mt-1">{product.name}</h3>
-                  <p className="text-[var(--text-muted)] text-sm mt-1">{product.nameEn}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                  <div className="p-6">
+                    <span className="text-gold text-sm font-semibold">{product.category || 'سجاد'}</span>
+                    <h3 className="text-xl font-bold text-[var(--text-main)] mt-1">{product.name_ar}</h3>
+                    <p className="text-[var(--text-muted)] text-sm mt-1">{product.name_en}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mt-12">
             <a href="https://wa.me/905550200911" target="_blank" rel="noopener noreferrer" className="btn-luxury inline-flex items-center gap-2">
@@ -352,7 +438,7 @@ export default function Home() {
           <Swiper modules={[Autoplay, Pagination, Navigation, Keyboard]} spaceBetween={20} slidesPerView={1} breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 }, 1280: { slidesPerView: 4 } }} autoplay={{ delay: 3000 }} pagination={{ clickable: true }} navigation keyboard={{ enabled: true }} className="pb-12">
             {gallery.map((img, i) => (
               <SwiperSlide key={i}>
-                <motion.div whileHover={{ scale: 1.02 }} className="cursor-pointer" onClick={() => { setSelectedProduct({ id: 0, name: 'المعرض', nameEn: 'Gallery', images: gallery, category: '' }); setSelectedImageIndex(i); }}>
+                <motion.div whileHover={{ scale: 1.02 }} className="cursor-pointer" onClick={() => { setSelectedProduct({ id: '0', name_ar: 'المعرض', name_en: 'Gallery', images: gallery.map(g => ({ image_url: g })), category: '' }); setSelectedImageIndex(i); }}>
                   <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-72 object-cover rounded-2xl" />
                 </motion.div>
               </SwiperSlide>
@@ -389,10 +475,10 @@ export default function Home() {
             {testimonials.map((t, i) => (
               <motion.div key={t.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="testimonial-card">
                 <div className="flex gap-1 mb-4">{[...Array(t.rating)].map((_, j) => (<Star key={j} className="w-5 h-5 fill-gold text-gold" />))}</div>
-                <p className="text-[var(--text-secondary)] mb-6 leading-relaxed">"{t.text}"</p>
+                <p className="text-[var(--text-secondary)] mb-6 leading-relaxed">"{t.content_ar}"</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center"><span className="text-gold font-bold">{t.name[0]}</span></div>
-                  <div><div className="font-bold text-[var(--text-main)]">{t.name}</div><div className="text-sm text-[var(--text-muted)]">{t.country}</div></div>
+                  <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center"><span className="text-gold font-bold">{t.customer_name[0]}</span></div>
+                  <div><div className="font-bold text-[var(--text-main)]">{t.customer_name}</div><div className="text-sm text-[var(--text-muted)]">{t.customer_country}</div></div>
                 </div>
               </motion.div>
             ))}
@@ -409,15 +495,15 @@ export default function Home() {
           </motion.div>
           <div className="space-y-4">
             {faqs.map((faq, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] overflow-hidden">
+              <motion.div key={faq.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] overflow-hidden">
                 <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full flex items-center justify-between p-6 text-right">
-                  <span className="font-semibold text-[var(--text-main)]">{faq.q}</span>
+                  <span className="font-semibold text-[var(--text-main)]">{faq.question_ar}</span>
                   <ChevronDown className={`w-5 h-5 text-gold transition-transform ${expandedFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 <AnimatePresence>
                   {expandedFaq === i && (
                     <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
-                      <p className="px-6 pb-6 text-[var(--text-secondary)]">{faq.a}</p>
+                      <p className="px-6 pb-6 text-[var(--text-secondary)]">{faq.answer_ar}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -519,34 +605,38 @@ export default function Home() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center" onClick={() => setSelectedProduct(null)}>
             <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
               <div className="text-white">
-                <h3 className="font-bold text-xl">{selectedProduct.name}</h3>
-                <p className="text-gray-400 text-sm">{selectedImageIndex + 1} / {selectedProduct.images.length}</p>
+                <h3 className="font-bold text-xl">{selectedProduct.name_ar || selectedProduct.name}</h3>
+                <p className="text-gray-400 text-sm">{selectedImageIndex + 1} / {(selectedProduct.images?.length || 0)}</p>
               </div>
               <button onClick={() => setSelectedProduct(null)} className="text-white hover:text-gold p-2"><X className="w-8 h-8" /></button>
             </div>
 
             <div className="w-full h-full max-w-5xl max-h-[80vh] px-16" onClick={(e) => e.stopPropagation()}>
-              <Swiper modules={[Navigation, Keyboard, Pagination]} spaceBetween={0} slidesPerView={1} initialSlide={selectedImageIndex} navigation={{ prevEl: '.lightbox-prev', nextEl: '.lightbox-next' }} keyboard={{ enabled: true }} pagination={{ clickable: true, dynamicBullets: true }} onSlideChange={(swiper) => setSelectedImageIndex(swiper.activeIndex)} className="h-full">
-                {selectedProduct.images.map((img, index) => (
-                  <SwiperSlide key={index} className="flex items-center justify-center">
-                    <img src={img} alt={`${selectedProduct.name} ${index + 1}`} className="max-w-full max-h-full object-contain rounded-2xl" />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+              {selectedProduct.images && selectedProduct.images.length > 0 ? (
+                <Swiper modules={[Navigation, Keyboard, Pagination]} spaceBetween={0} slidesPerView={1} initialSlide={selectedImageIndex} navigation={{ prevEl: '.lightbox-prev', nextEl: '.lightbox-next' }} keyboard={{ enabled: true }} pagination={{ clickable: true, dynamicBullets: true }} onSlideChange={(swiper) => setSelectedImageIndex(swiper.activeIndex)} className="h-full">
+                  {selectedProduct.images.map((img: any, index: number) => (
+                    <SwiperSlide key={index} className="flex items-center justify-center">
+                      <img src={img.image_url || img} alt={`${selectedProduct.name_ar} ${index + 1}`} className="max-w-full max-h-full object-contain rounded-2xl" />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-500">لا توجد صور</div>
+              )}
             </div>
 
-            {selectedProduct.images.length > 1 && (
+            {selectedProduct.images && selectedProduct.images.length > 1 && (
               <>
                 <button className="lightbox-prev absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-gold text-white hover:text-navy rounded-full flex items-center justify-center transition-all z-20" onClick={(e) => e.stopPropagation()}><ChevronRight className="w-8 h-8" /></button>
                 <button className="lightbox-next absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-gold text-white hover:text-navy rounded-full flex items-center justify-center transition-all z-20" onClick={(e) => e.stopPropagation()}><ChevronLeft className="w-8 h-8" /></button>
               </>
             )}
 
-            {selectedProduct.images.length > 1 && (
+            {selectedProduct.images && selectedProduct.images.length > 1 && (
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-                {selectedProduct.images.map((img, index) => (
+                {selectedProduct.images.map((img: any, index: number) => (
                   <button key={index} onClick={(e) => { e.stopPropagation(); setSelectedImageIndex(index); }} className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${selectedImageIndex === index ? 'border-gold scale-110' : 'border-transparent opacity-60 hover:opacity-100'}`}>
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img.image_url || img} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
