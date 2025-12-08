@@ -42,6 +42,12 @@ interface FAQ {
   answer_ar: string
 }
 
+interface VideoItem {
+  id: string
+  title_ar: string
+  url: string
+}
+
 // Default fallback data
 const defaultGallery = ['/carpet1.jpg', '/carpet2.jpg', '/carpet3.jpg', '/carpet4.jpg', '/carpet5.jpg', '/carpet6.jpg', '/carpet7.jpg', '/carpet8.jpg', '/carpet9.jpg', '/carpet10.jpg', '/carpet11.jpg', '/carpet12.jpg']
 
@@ -75,6 +81,7 @@ export default function Home() {
   const [gallery, setGallery] = useState<string[]>(defaultGallery)
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials)
   const [faqs, setFaqs] = useState<FAQ[]>(defaultFaqs)
+  const [videos, setVideos] = useState<VideoItem[]>([])
 
   // Fetch data from Supabase
   useEffect(() => {
@@ -121,6 +128,17 @@ export default function Home() {
       
       if (faqData && faqData.length > 0) {
         setFaqs(faqData)
+      }
+
+      // Fetch Videos
+      const { data: videosData } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+      
+      if (videosData && videosData.length > 0) {
+        setVideos(videosData)
       }
     }
 
@@ -199,6 +217,12 @@ export default function Home() {
     { id: 'faq', label: 'الأسئلة الشائعة' },
     { id: 'contact', label: 'تواصل معنا' },
   ]
+
+  // Helper function to convert YouTube URL to embed URL
+  const getYoutubeEmbedUrl = (url: string) => {
+    const match = url.match(/(?:youtube\.com\/(?:shorts\/|watch\?v=)|youtu\.be\/)([^&\s]+)/)
+    return match ? `https://www.youtube.com/embed/${match[1]}` : url
+  }
 
   return (
     <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
@@ -456,11 +480,34 @@ export default function Home() {
             <h2 className="text-4xl font-bold text-white mb-4">جولة في <span className="text-gold">معمل الإنتاج</span></h2>
             <p className="text-gray-400 max-w-2xl mx-auto">شاهد كيف نصنع أجود أنواع السجاد بأيدي أمهر الحرفيين</p>
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="max-w-4xl mx-auto">
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-video bg-navy-light">
-              <iframe src="https://www.youtube.com/embed/DSyyQwGNQ-Q" title="معمل السجاد" className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-            </div>
-          </motion.div>
+          
+          {videos.length === 0 ? (
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="max-w-4xl mx-auto">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-video bg-navy-light">
+                <iframe src="https://www.youtube.com/embed/DSyyQwGNQ-Q" title="معمل السجاد" className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+              </div>
+            </motion.div>
+          ) : videos.length === 1 ? (
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="max-w-4xl mx-auto">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-video bg-navy-light">
+                <iframe src={getYoutubeEmbedUrl(videos[0].url)} title={videos[0].title_ar} className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+              </div>
+              <p className="text-center text-white mt-4 font-semibold">{videos[0].title_ar}</p>
+            </motion.div>
+          ) : (
+            <Swiper modules={[Autoplay, Pagination, Navigation]} spaceBetween={30} slidesPerView={1} breakpoints={{ 768: { slidesPerView: 2 } }} pagination={{ clickable: true }} navigation className="pb-12">
+              {videos.map((video, i) => (
+                <SwiperSlide key={video.id}>
+                  <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                    <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-video bg-navy-light">
+                      <iframe src={getYoutubeEmbedUrl(video.url)} title={video.title_ar} className="absolute inset-0 w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                    </div>
+                    <p className="text-center text-white mt-4 font-semibold">{video.title_ar}</p>
+                  </motion.div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
         </div>
       </section>
 
