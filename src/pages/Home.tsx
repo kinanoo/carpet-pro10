@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Menu, X, Sun, Moon, Phone, Mail, MapPin, 
+  Menu, X, Phone, Mail, MapPin, 
   ChevronDown, Play, Star, Award, Users, Globe,
   MessageCircle, Send, Shield, Truck, CheckCircle, 
   Facebook, Instagram, Youtube, ChevronUp, ChevronLeft, ChevronRight
@@ -65,7 +65,6 @@ const defaultFaqs = [
 ]
 
 export default function Home() {
-  const [isDark, setIsDark] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
@@ -218,11 +217,10 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
-  const toggleTheme = () => {
-    setIsDark(!isDark)
-    document.documentElement.classList.toggle('dark')
-    localStorage.setItem('theme', !isDark ? 'dark' : 'light')
-  }
+  // Always dark mode
+  useEffect(() => {
+    document.documentElement.classList.add('dark')
+  }, [])
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id)
@@ -250,7 +248,7 @@ export default function Home() {
   }
 
   return (
-    <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
+    <div className="min-h-screen dark">
       {/* NAVBAR */}
       <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -272,9 +270,6 @@ export default function Home() {
             </div>
 
             <div className="flex items-center gap-3">
-              <button onClick={toggleTheme} className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
-                {isDark ? <Sun className="w-5 h-5 text-gold" /> : <Moon className="w-5 h-5 text-white" />}
-              </button>
               <a href="tel:+905550200911" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gold text-navy rounded-full font-semibold hover:bg-gold-light transition-colors">
                 <Phone className="w-4 h-4" />
                 <span>اتصل الآن</span>
@@ -320,8 +315,8 @@ export default function Home() {
         <div className="hero-pattern" />
         <div className="hero-glow hero-glow-1" />
         <div className="hero-glow hero-glow-2" />
-        <img src={siteImages.hero_floating_1} className="floating-carpet w-32 h-32 object-cover rounded-2xl top-20 right-10" style={{ animationDelay: '0s' }} />
-        <img src={siteImages.hero_floating_2} className="floating-carpet w-24 h-24 object-cover rounded-xl bottom-32 left-20" style={{ animationDelay: '2s' }} />
+        <img src={siteImages.hero_floating_1} loading="lazy" className="floating-carpet w-32 h-32 object-cover rounded-2xl top-20 right-10" style={{ animationDelay: '0s' }} />
+        <img src={siteImages.hero_floating_2} loading="lazy" className="floating-carpet w-24 h-24 object-cover rounded-xl bottom-32 left-20" style={{ animationDelay: '2s' }} />
 
         <div className="relative z-10 min-h-screen flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
@@ -365,7 +360,7 @@ export default function Home() {
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative hidden lg:block">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-primary/20 rounded-3xl blur-3xl" />
-                  <img src={siteImages.hero_main} alt="سجاد فاخر" className="relative rounded-3xl shadow-2xl w-full h-[500px] object-cover" />
+                  <img src={siteImages.hero_main} alt="سجاد فاخر" loading="lazy" className="relative rounded-3xl shadow-2xl w-full h-[500px] object-cover" />
                   <div className="absolute -bottom-6 -right-6 glass-card p-4 flex items-center gap-3">
                     <div className="w-12 h-12 bg-gold rounded-full flex items-center justify-center">
                       <CheckCircle className="w-6 h-6 text-navy" />
@@ -393,7 +388,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative">
-              <img src={siteImages.about_main} alt="معمل السجاد" className="rounded-3xl shadow-xl w-full h-[400px] object-cover" />
+              <img src={siteImages.about_main} alt="معمل السجاد" loading="lazy" className="rounded-3xl shadow-xl w-full h-[400px] object-cover" />
               <div className="absolute -bottom-8 -left-8 bg-gold text-navy p-6 rounded-2xl shadow-xl">
                 <div className="text-4xl font-bold">+10</div>
                 <div className="font-semibold">سنوات من التميز</div>
@@ -440,10 +435,10 @@ export default function Home() {
                 <motion.div key={product.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="luxury-card group">
                   <div className="product-image-wrapper h-64 relative">
                     {product.images && product.images.length > 0 ? (
-                      <Swiper modules={[Autoplay, Pagination]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} autoplay={{ delay: 4000, disableOnInteraction: false }} className="h-full">
+                      <Swiper modules={[Autoplay, Pagination]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} autoplay={{ delay: 4000, disableOnInteraction: false }} lazy={{ loadPrevNext: true }} className="h-full">
                         {product.images.map((img, imgIndex) => (
                           <SwiperSlide key={imgIndex}>
-                            <img src={img.image_url} alt={`${product.name_ar} ${imgIndex + 1}`} className="w-full h-full object-cover" />
+                            <img src={img.image_url} alt={`${product.name_ar} ${imgIndex + 1}`} loading="lazy" className="w-full h-full object-cover" />
                           </SwiperSlide>
                         ))}
                       </Swiper>
@@ -484,11 +479,11 @@ export default function Home() {
             <h2 className="section-title">شاهد <span>روائعنا</span></h2>
           </motion.div>
 
-          <Swiper modules={[Autoplay, Pagination, Navigation, Keyboard]} spaceBetween={20} slidesPerView={1} breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 }, 1280: { slidesPerView: 4 } }} autoplay={{ delay: 3000 }} pagination={{ clickable: true }} navigation keyboard={{ enabled: true }} className="pb-12">
+          <Swiper modules={[Autoplay, Pagination, Navigation, Keyboard]} spaceBetween={20} slidesPerView={1} breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 }, 1280: { slidesPerView: 4 } }} autoplay={{ delay: 3000, pauseOnMouseEnter: true }} pagination={{ clickable: true }} navigation keyboard={{ enabled: true }} watchSlidesProgress={true} className="pb-12">
             {gallery.map((img, i) => (
               <SwiperSlide key={i}>
                 <motion.div whileHover={{ scale: 1.02 }} className="cursor-pointer" onClick={() => { setSelectedProduct({ id: '0', name_ar: 'المعرض', name_en: 'Gallery', images: gallery.map(g => ({ image_url: g })), category: '' }); setSelectedImageIndex(i); }}>
-                  <img src={img} alt={`Gallery ${i + 1}`} className="w-full h-72 object-cover rounded-2xl" />
+                  <img src={img} alt={`Gallery ${i + 1}`} loading="lazy" className="w-full h-72 object-cover rounded-2xl" />
                 </motion.div>
               </SwiperSlide>
             ))}
@@ -688,7 +683,7 @@ export default function Home() {
                 <Swiper modules={[Navigation, Keyboard, Pagination]} spaceBetween={0} slidesPerView={1} initialSlide={selectedImageIndex} navigation={{ prevEl: '.lightbox-prev', nextEl: '.lightbox-next' }} keyboard={{ enabled: true }} pagination={{ clickable: true, dynamicBullets: true }} onSlideChange={(swiper) => setSelectedImageIndex(swiper.activeIndex)} className="h-full">
                   {selectedProduct.images.map((img: any, index: number) => (
                     <SwiperSlide key={index} className="flex items-center justify-center">
-                      <img src={img.image_url || img} alt={`${selectedProduct.name_ar} ${index + 1}`} className="max-w-full max-h-full object-contain rounded-2xl" />
+                      <img src={img.image_url || img} alt={`${selectedProduct.name_ar} ${index + 1}`} loading="lazy" className="max-w-full max-h-full object-contain rounded-2xl" />
                     </SwiperSlide>
                   ))}
                 </Swiper>

@@ -9,6 +9,87 @@ import {
 import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
 
+// ==================== IMAGE COMPRESSION ====================
+const compressImage = (file: File, maxWidth = 1200, maxHeight = 1200, quality = 0.7): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = (event) => {
+      const img = document.createElement('img')
+      img.src = event.target?.result as string
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        let width = img.width
+        let height = img.height
+
+        // Calculate new dimensions
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width)
+            width = maxWidth
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height)
+            height = maxHeight
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'))
+          return
+        }
+
+        // Draw image with white background (for transparency)
+        ctx.fillStyle = '#FFFFFF'
+        ctx.fillRect(0, 0, width, height)
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // Convert to blob
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('Could not compress image'))
+              return
+            }
+            // Create new file from blob
+            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            })
+            const savedPercent = Math.round((1 - compressedFile.size / file.size) * 100)
+            console.log(`✅ Image compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB (saved ${savedPercent}%)`)
+            resolve(compressedFile)
+          },
+          'image/jpeg',
+          quality
+        )
+      }
+      img.onerror = () => reject(new Error('Could not load image'))
+    }
+    reader.onerror = () => reject(new Error('Could not read file'))
+  })
+}
+
+// Compress multiple images
+const compressImages = async (files: File[]): Promise<File[]> => {
+  const compressed: File[] = []
+  for (const file of files) {
+    try {
+      const compressedFile = await compressImage(file)
+      compressed.push(compressedFile)
+    } catch (error) {
+      console.error('Error compressing image:', error)
+      compressed.push(file) // Use original if compression fails
+    }
+  }
+  return compressed
+}
+
 const ADMIN_EMAIL = 'httmth@gmail.com'
 const ADMIN_PASSWORD = '1qaz1qazZ!'
 
@@ -251,9 +332,12 @@ function ProductsTab() {
         toast.success('تم إضافة المنتج')
       }
 
-      // Upload images
+      // Upload images (with compression)
       if (selectedImages.length > 0 && productId) {
-        for (const file of selectedImages) {
+        toast.info('جاري ضغط الصور...')
+        const compressedImages = await compressImages(selectedImages)
+        
+        for (const file of compressedImages) {
           const fileName = `${productId}/${Date.now()}-${file.name}`
           const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file)
           if (uploadError) {
@@ -450,7 +534,10 @@ function GalleryTab() {
     setUploading(true)
 
     try {
-      for (const file of Array.from(files)) {
+      toast.info('جاري ضغط الصور...')
+      const compressedFiles = await compressImages(Array.from(files))
+      
+      for (const file of compressedFiles) {
         const fileName = `${Date.now()}-${file.name}`
         const { error: uploadError } = await supabase.storage.from('gallery').upload(fileName, file)
         if (uploadError) throw uploadError
@@ -885,6 +972,10 @@ function SiteImagesTab() {
   const handleUpload = async (key: string, file: File) => {
     setUploading(key)
     try {
+      // Compress image first
+      toast.info('جاري ضغط الصورة...')
+      const compressedFile = await compressImage(file, 1920, 1080, 0.8)
+      
       // Delete old image if exists
       if (images[key]) {
         const oldPath = images[key].split('/site-images/')[1]
@@ -892,8 +983,8 @@ function SiteImagesTab() {
       }
 
       // Upload new image
-      const fileName = `${key}-${Date.now()}.${file.name.split('.').pop()}`
-      const { error: uploadError } = await supabase.storage.from('site-images').upload(fileName, file)
+      const fileName = `${key}-${Date.now()}.jpg`
+      const { error: uploadError } = await supabase.storage.from('site-images').upload(fileName, compressedFile)
       if (uploadError) throw uploadError
 
       const { data: { publicUrl } } = supabase.storage.from('site-images').getPublicUrl(fileName)

@@ -49,6 +49,21 @@ body {
   line-height: 1.7;
 }
 
+/* Performance Optimization */
+img {
+  content-visibility: auto;
+  contain-intrinsic-size: 300px 200px;
+}
+
+.swiper-slide img {
+  will-change: transform;
+}
+
+.swiper-slide {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
 /* ========== LUXURY HERO ========== */
 .hero-section {
   position: relative;
