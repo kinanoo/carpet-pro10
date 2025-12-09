@@ -376,32 +376,32 @@ export default function Home() {
       </section>
 
       {/* ABOUT SECTION */}
-      <section id="about" className="py-24 bg-[var(--bg-main)]">
+      <section id="about" className="py-16 sm:py-24 bg-[var(--bg-main)] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative">
-              <img src={siteImages.about_main} alt="معمل السجاد" loading="lazy" className="rounded-3xl shadow-xl w-full h-[400px] object-cover" />
-              <div className="absolute -bottom-8 -left-8 bg-gold text-navy p-6 rounded-2xl shadow-xl">
-                <div className="text-4xl font-bold">+10</div>
-                <div className="font-semibold">سنوات من التميز</div>
+              <img src={siteImages.about_main} alt="معمل السجاد" loading="lazy" className="rounded-3xl shadow-xl w-full h-[300px] sm:h-[400px] object-cover" />
+              <div className="absolute -bottom-4 right-4 sm:-bottom-8 sm:-left-8 bg-gold text-navy p-4 sm:p-6 rounded-2xl shadow-xl">
+                <div className="text-2xl sm:text-4xl font-bold">+10</div>
+                <div className="text-sm sm:text-base font-semibold">سنوات من التميز</div>
               </div>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+            <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="mt-8 lg:mt-0">
               <div className="section-badge"><Globe className="w-4 h-4" /><span>من نحن</span></div>
               <h2 className="section-title">رواد صناعة <span>السجاد بكل أشكاله وتصاميمه</span></h2>
-              <p className="text-[var(--text-secondary)] text-lg leading-relaxed mb-6">
+              <p className="text-[var(--text-secondary)] text-base sm:text-lg leading-relaxed mb-6">
                 منذ عام 2015، ونحن نصنع أجود أنواع السجاد ونصدره للعالم ليروي عنا 
                 الحكاية ويكون التصميم والجودة الاسم الذي يسمو بنا.
               </p>
               <p className="text-[var(--text-secondary)] leading-relaxed mb-8">
                 نجمع بين الحرفية التقليدية والتقنيات الحديثة لنقدم لكم سجاداً يجمع بين الجمال والجودة والمتانة.
               </p>
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {[{ icon: Shield, text: 'ضمان الجودة' }, { icon: Truck, text: 'شحن دولي' }].map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 p-4 bg-[var(--bg-secondary)] rounded-xl">
-                    <item.icon className="w-6 h-6 text-gold" />
-                    <span className="font-semibold text-[var(--text-main)]">{item.text}</span>
+                  <div key={i} className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-[var(--bg-secondary)] rounded-xl">
+                    <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-gold flex-shrink-0" />
+                    <span className="font-semibold text-sm sm:text-base text-[var(--text-main)]">{item.text}</span>
                   </div>
                 ))}
               </div>
@@ -546,23 +546,23 @@ export default function Home() {
       </section>
 
       {/* FAQ SECTION */}
-      <section id="faq" className="py-24 bg-[var(--bg-main)]">
+      <section id="faq" className="py-16 sm:py-24 bg-[var(--bg-main)]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10 sm:mb-16">
             <div className="section-badge mx-auto"><MessageCircle className="w-4 h-4" /><span>الأسئلة الشائعة</span></div>
             <h2 className="section-title">أسئلة <span>متكررة</span></h2>
           </motion.div>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {faqs.map((faq, i) => (
-              <motion.div key={faq.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] overflow-hidden">
-                <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full flex items-center justify-between p-6 text-right">
-                  <span className="font-semibold text-[var(--text-main)]">{faq.question_ar}</span>
-                  <ChevronDown className={`w-5 h-5 text-gold transition-transform ${expandedFaq === i ? 'rotate-180' : ''}`} />
+              <motion.div key={faq.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-[var(--bg-card)] rounded-xl sm:rounded-2xl border border-[var(--border)] overflow-hidden">
+                <button onClick={() => setExpandedFaq(expandedFaq === i ? null : i)} className="w-full flex items-center justify-between p-4 sm:p-6 text-right">
+                  <span className="font-semibold text-[var(--text-main)] text-sm sm:text-base pr-2">{faq.question_ar}</span>
+                  <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 text-gold transition-transform flex-shrink-0 ${expandedFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 <AnimatePresence>
                   {expandedFaq === i && (
                     <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
-                      <p className="px-6 pb-6 text-[var(--text-secondary)]">{faq.answer_ar}</p>
+                      <p className="px-4 sm:px-6 pb-4 sm:pb-6 text-[var(--text-secondary)] text-sm sm:text-base">{faq.answer_ar}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -573,35 +573,35 @@ export default function Home() {
       </section>
 
       {/* CONTACT SECTION */}
-      <section id="contact" className="py-24 bg-navy relative overflow-hidden">
+      <section id="contact" className="py-16 sm:py-24 bg-navy relative overflow-hidden">
         <div className="absolute inset-0 opacity-5"><div className="hero-pattern" /></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10 sm:mb-16">
             <div className="section-badge mx-auto"><Mail className="w-4 h-4" /><span>تواصل معنا</span></div>
-            <h2 className="text-4xl font-bold text-white mb-4">نسعد <span className="text-gold">بتواصلكم</span></h2>
+            <h2 className="text-2xl sm:text-4xl font-bold text-white mb-4">نسعد <span className="text-gold">بتواصلكم</span></h2>
           </motion.div>
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-12">
             <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <div className="space-y-6">
-                {[{ icon: MapPin, title: 'العنوان', text: 'BAŞPINAR OSB MAH. 3.BÖLGE 83318 NOLU CAD. NO: 22, GAZİANTEP' }, { icon: Phone, title: 'الهاتف', text: '+90 555 020 09 11', href: 'tel:+905550200911' }, { icon: Mail, title: 'البريد الإلكتروني', text: 'carpethome10@gmail.com', href: 'mailto:carpethome10@gmail.com' }].map((item, i) => (
-                  <div key={i} className="flex gap-4 p-6 glass-card rounded-2xl">
-                    <div className="w-14 h-14 bg-gold/20 rounded-xl flex items-center justify-center flex-shrink-0"><item.icon className="w-6 h-6 text-gold" /></div>
-                    <div><h3 className="font-bold text-white mb-1">{item.title}</h3>{item.href ? (<a href={item.href} className="text-gray-400 hover:text-gold transition-colors">{item.text}</a>) : (<p className="text-gray-400">{item.text}</p>)}</div>
+              <div className="space-y-4 sm:space-y-6">
+                {[{ icon: MapPin, title: 'العنوان', text: 'BAŞPINAR OSB MAH. GAZİANTEP' }, { icon: Phone, title: 'الهاتف', text: '+90 555 020 09 11', href: 'tel:+905550200911' }, { icon: Mail, title: 'البريد الإلكتروني', text: 'carpethome10@gmail.com', href: 'mailto:carpethome10@gmail.com' }].map((item, i) => (
+                  <div key={i} className="flex gap-3 sm:gap-4 p-4 sm:p-6 glass-card rounded-2xl">
+                    <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gold/20 rounded-xl flex items-center justify-center flex-shrink-0"><item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-gold" /></div>
+                    <div className="min-w-0"><h3 className="font-bold text-white mb-1 text-sm sm:text-base">{item.title}</h3>{item.href ? (<a href={item.href} className="text-gray-400 hover:text-gold transition-colors text-xs sm:text-sm break-all">{item.text}</a>) : (<p className="text-gray-400 text-xs sm:text-sm break-words">{item.text}</p>)}</div>
                   </div>
                 ))}
               </div>
-              <div className="mt-8 rounded-2xl overflow-hidden h-64">
+              <div className="mt-6 sm:mt-8 rounded-2xl overflow-hidden h-48 sm:h-64">
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3172.5!2d37.336!3d37.168!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzfCsDEwJzA2LjAiTiAzN8KwMjAnMTAuMyJF!5e0!3m2!1sen!2str!4v1234567890" width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy" />
               </div>
             </motion.div>
-            <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="glass-card p-8 rounded-3xl">
-              <h3 className="text-2xl font-bold text-white mb-6">أرسل رسالتك</h3>
-              <form className="space-y-5">
-                <input type="text" placeholder="الاسم الكامل" className="input-luxury bg-white/10 border-white/20 text-white placeholder:text-gray-400" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-                <input type="email" placeholder="البريد الإلكتروني" className="input-luxury bg-white/10 border-white/20 text-white placeholder:text-gray-400" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-                <input type="tel" placeholder="رقم الهاتف" className="input-luxury bg-white/10 border-white/20 text-white placeholder:text-gray-400" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-                <textarea placeholder="رسالتك..." rows={4} className="input-luxury bg-white/10 border-white/20 text-white placeholder:text-gray-400 resize-none" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} />
-                <button type="submit" className="btn-luxury w-full flex items-center justify-center gap-2"><Send className="w-5 h-5" />إرسال الرسالة</button>
+            <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="glass-card p-5 sm:p-8 rounded-2xl sm:rounded-3xl">
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">أرسل رسالتك</h3>
+              <form className="space-y-4 sm:space-y-5">
+                <input type="text" placeholder="الاسم الكامل" className="input-luxury bg-white/10 border-white/20 text-white placeholder:text-gray-400 text-sm sm:text-base" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                <input type="email" placeholder="البريد الإلكتروني" className="input-luxury bg-white/10 border-white/20 text-white placeholder:text-gray-400 text-sm sm:text-base" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                <input type="tel" placeholder="رقم الهاتف" className="input-luxury bg-white/10 border-white/20 text-white placeholder:text-gray-400 text-sm sm:text-base" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                <textarea placeholder="رسالتك..." rows={3} className="input-luxury bg-white/10 border-white/20 text-white placeholder:text-gray-400 resize-none text-sm sm:text-base" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} />
+                <button type="submit" className="btn-luxury w-full flex items-center justify-center gap-2 text-sm sm:text-base"><Send className="w-4 h-4 sm:w-5 sm:h-5" />إرسال الرسالة</button>
               </form>
             </motion.div>
           </div>
@@ -609,38 +609,38 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-navy-light py-12 border-t border-white/10">
+      <footer className="bg-navy-light py-8 sm:py-12 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
+            <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-3 mb-4">
-                <img src="/logo.png" alt="Logo" className="w-12 h-12 rounded-full" />
-                <div><h3 className="text-white font-bold">كاربت هوم</h3><p className="text-gold text-sm">Carpet Home</p></div>
+                <img src="/logo.png" alt="Logo" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full" />
+                <div><h3 className="text-white font-bold text-sm sm:text-base">كاربت هوم</h3><p className="text-gold text-xs sm:text-sm">Carpet Home</p></div>
               </div>
-              <p className="text-gray-400 text-sm">صناعة السجاد الفاخر منذ 2015</p>
+              <p className="text-gray-400 text-xs sm:text-sm">صناعة السجاد الفاخر منذ 2015</p>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-4">روابط سريعة</h4>
-              <ul className="space-y-2">
-                {navItems.slice(0, 4).map((item) => (<li key={item.id}><button onClick={() => scrollToSection(item.id)} className="text-gray-400 hover:text-gold transition-colors">{item.label}</button></li>))}
+              <h4 className="text-white font-bold mb-3 sm:mb-4 text-sm sm:text-base">روابط سريعة</h4>
+              <ul className="space-y-1 sm:space-y-2">
+                {navItems.slice(0, 4).map((item) => (<li key={item.id}><button onClick={() => scrollToSection(item.id)} className="text-gray-400 hover:text-gold transition-colors text-xs sm:text-sm">{item.label}</button></li>))}
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-4">تواصل معنا</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li>+90 555 020 09 11</li>
-                <li>carpethome10@gmail.com</li>
+              <h4 className="text-white font-bold mb-3 sm:mb-4 text-sm sm:text-base">تواصل معنا</h4>
+              <ul className="space-y-1 sm:space-y-2 text-gray-400 text-xs sm:text-sm">
+                <li className="break-all">+90 555 020 09 11</li>
+                <li className="break-all">carpethome10@gmail.com</li>
                 <li>غازي عنتاب، تركيا</li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-4">تابعنا</h4>
-              <div className="flex gap-3">
-                {[Facebook, Instagram, Youtube].map((Icon, i) => (<a key={i} href="#" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gold hover:text-navy transition-all"><Icon className="w-5 h-5 text-white" /></a>))}
+              <h4 className="text-white font-bold mb-3 sm:mb-4 text-sm sm:text-base">تابعنا</h4>
+              <div className="flex gap-2 sm:gap-3">
+                {[Facebook, Instagram, Youtube].map((Icon, i) => (<a key={i} href="#" className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gold hover:text-navy transition-all"><Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" /></a>))}
               </div>
             </div>
           </div>
-          <div className="border-t border-white/10 pt-8 text-center text-gray-400 text-sm">© {new Date().getFullYear()} كاربت هوم. جميع الحقوق محفوظة.</div>
+          <div className="border-t border-white/10 pt-6 sm:pt-8 text-center text-gray-400 text-xs sm:text-sm">© {new Date().getFullYear()} كاربت هوم. جميع الحقوق محفوظة.</div>
         </div>
       </footer>
 
