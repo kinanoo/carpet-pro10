@@ -170,14 +170,6 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme')
-    if (saved === 'dark') {
-      setIsDark(true)
-      document.documentElement.classList.add('dark')
-    }
-  }, [])
-
-  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
       setShowScrollTop(window.scrollY > 500)
@@ -435,7 +427,7 @@ export default function Home() {
                 <motion.div key={product.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="luxury-card group">
                   <div className="product-image-wrapper h-64 relative">
                     {product.images && product.images.length > 0 ? (
-                      <Swiper modules={[Autoplay, Pagination]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} autoplay={{ delay: 4000, disableOnInteraction: false }} lazy={{ loadPrevNext: true }} className="h-full">
+                      <Swiper modules={[Autoplay, Pagination]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} autoplay={{ delay: 4000, disableOnInteraction: false }} className="h-full">
                         {product.images.map((img, imgIndex) => (
                           <SwiperSlide key={imgIndex}>
                             <img src={img.image_url} alt={`${product.name_ar} ${imgIndex + 1}`} loading="lazy" className="w-full h-full object-cover" />
